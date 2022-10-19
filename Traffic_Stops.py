@@ -5,13 +5,14 @@ Created on Mon Oct 17 13:53:49 2022
 
 @author: Samsonite
 """
+#%%
 import pandas as pd
 import numpy as np 
-import os
+
 import matplotlib.pyplot as plt
-os.chdir("/Users/Samsonite/Documents/DSBA UNCC/DSBA5122/DesignContest")
+
 #%%
-stops = pd.read_csv("Officer_Traffic_Stops.csv")
+stops = pd.read_csv("https://drive.google.com/file/d/1P9wUxzlFcXs_sC0jBGBlcdyP56OMvK7W/view?usp=sharing")
 #%%
 stops.drop(columns = ["GlobalID", "OBJECTID"], inplace = True)
 #%%
