@@ -142,6 +142,19 @@ plt.show()
 from sklearn.tree import DecisionTreeClassifier #DT classifier, 
 from sklearn.model_selection import train_test_split #to divide the data
 from sklearn.linear_model import LogisticRegression #logreg model
-from sklearn.preprocessing import LabelEncoder #label encoding for naive bayes
-#from sklearn.naive_bayes import 
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder #label encoding for naive bayes
+from sklearn.naive_bayes import MultinomialNB
+#%%
+
+#for Naive bayes we really only want categorical variables, so let's drop the numeric
+#columns from the dataset
+nb_stops = stops_filt.copy()
+todrop = [col for col in nb_stops if nb_stops[col].dtype != "O"]
+nb_stops.drop(columns = todrop, inplace = True)
+# then we want to split off the target column which is result of stop
+
+
+#%%
+
+
 #%%
