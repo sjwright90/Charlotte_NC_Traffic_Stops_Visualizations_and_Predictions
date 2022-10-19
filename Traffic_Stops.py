@@ -205,3 +205,40 @@ could build a Binomial model with arrest vs not arrest, would probaly still want
 upsample the arrests in this case. One could also reduce the number of predictor
 variables. For the moment we will leave this as is and move on to other classifiers'''
 #%%
+'''Next we will explore the simple logistic regression classifier,
+in this instance we can leave all predictor variables in, but
+we will drop the months column again since we are not doing a time
+series analysis here'''
+lg_X = stops.drop(columns = ["Month_of_Stop", "Result_of_Stop"])
+lg_y = stops["Result_of_Stop"]
+
+lg_X_train, lg_X_test, lg_y_train, lg_y_test = train_test_split(lg_X, lg_y, test_size=0.3, \
+    random_state=42, stratify=lg_y)
+
+ohe_lg_X = OneHotEncoder(handle_unknown="ignore")
+ohe_lg_X.fit(lg_X_train)
+lg_enc_X_train = ohe_lg_X.transform(lg_X_train).toarray()
+lg_enc_X_test = ohe_lg_X.transform(lg_X_test).toarray()
+
+#%%
+lg_stops = LogisticRegression(solver="saga", n_jobs=-1, max_iter=200, warm_start=True)
+
+lg_stops.fit(lg_enc_X_train, lg_y_train)
+
+#%%
+score = lg_stops.score(lg_enc_X_test, lg_y_test)
+print(score)
+'''at 0.69 we are slightly better than Naive Bayes, but hardly, for comparison our baseline is 
+0.53 which is the normalized number of Verbal Warnings, so, better than baseline but not much.'''
+ConfusionMatrixDisplay.from_estimator(lg_stops, lg_enc_X_test, lg_y_test)
+plt.xticks(rotation = 90)
+plt.show()
+
+'''And looking at the confusion matrix we see a similar issue, with Citation Issued and Verbal Warning
+being overpredicted, likely due to their greater abundance. Unfortunately the sklearn logistic
+regression model does not allow us to exame the relative importance of the coefficients, so 
+let's rebuild the regressor in statsmodels and see if we can determine whether we can pair the
+model down a bit'''
+#%%
+
+#%%
