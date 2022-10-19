@@ -8,48 +8,54 @@ Created on Mon Oct 17 13:53:49 2022
 #%%
 import pandas as pd
 import numpy as np 
-
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 #%%
 # Load data from google drive (should be public, if not email me for link swrig109@uncc.edu)
+#or download it from 
+# https://data.charlottenc.gov/datasets/charlotte::officer-traffic-stops/explore
+
 url = "https://drive.google.com/file/d/1P9wUxzlFcXs_sC0jBGBlcdyP56OMvK7W/view?usp=sharing"
 path = 'https://drive.google.com/uc?export=download&id='+url.split('/')[-2]
 stops = pd.read_csv(path)
 #%%
 # Remove unecessary columns
 stops.drop(columns = ["GlobalID", "OBJECTID"], inplace = True)
+
 #%%
+# change month of stop to datetime 
+stops["Month_of_Stop"] = pd.to_datetime(stops.Month_of_Stop)
+
+#%%
+# isolate object data types and string strip to remove trailing/leading spaces
+stops_ob = stops.select_dtypes(["object"])
+stops[stops_ob.columns] = stops_ob.apply(lambda x: x.str.strip())
+#%%
+
 # Remove stops with multiple officers or officer race not specified
 stops_filt = stops[~ stops.Officer_Race.isin(["2 or More", "Not Specified"])].copy()
-
-# alternative: stops.drop(stops[stops.Officer_Race.isin(["2 or More", "Not Specified"])].index)
+#remove stops where driver race is unknown
+stops_filt.drop(stops_filt[stops_filt.Driver_Race == "Other/Unknown"].index, \
+    inplace = True)
+# remove stops where reason for stop is other
+stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace = True)
 #%%
 # inspect number and location of NaN values
 stops_filt.isna.sum()
 # Drop stops with NaN
 stops_filt.dropna(inplace = True)
 #%%
+
 # Look at distribution of categorical columns
 for col in stops_filt.columns:
     if not stops_filt[col].dtype == "int64":
         print(stops_filt[col].value_counts())
         print("\n")
- #%%   
-# isolate object data types and string strip to remove trailing/leading spaces
-stops_ob = stops_filt.select_dtypes(["object"])
-stops_filt[stops_ob.columns] = stops_ob.apply(lambda x: x.str.strip())
-
+# better to look at graphical representation
 #%%
-# drop Other category from Reason for Stop
-
-stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace = True)
-#%%
-# change month of stop to datetime (might want to do this earlier)
-stops_filt["Month_of_Stop"] = pd.to_datetime(stops_filt.Month_of_Stop)
-#%%
-# histograms of each categorical column, as we can see officers are most often white and drivers are
-# most often black
+# histograms of each categorical column, as we can see officers are most 
+# often white and drivers are most often black
 for col in stops_filt:
     if stops_filt[col].dtype == "O":
         stops_filt[col].hist()
@@ -95,15 +101,30 @@ for grp in cmpd_loc:
     plt.hist(grp[1].Driver_Race.sort_values())
     plt.title("CMPD Division: " + grp[0])
     plt.ylabel("Count")
-    plt.xlabel("Diver Race")
+    plt.xlabel("Driver Race")
     plt.show()
 
 #CMPD divisions Providence and South are the only two divisions where the driver being stoped
 #is not most likely to be black, this likely is a reflection of the population in those two
 #locations in Charlotte
 #%%
-# let's see what some maps of this data might tell us
-import json
-import requests
+# finally let us see what the relationship between result of a stop and driver race is
 
+outcome = stops_filt.groupby(by = "Driver_Race")
+for grp in outcome:
+    plt.hist(grp[1].Result_of_Stop.sort_values())
+    plt.title("Driver Race: " + grp[0])
+    plt.ylabel("Count")
+    plt.xlabel("Result of Stop")
+    plt.show()
+# interesting results, 
+#%%
+# time to build some simple predictive models
+# we will keep it basic here, just a DecisionTree, a Logistic Regression model,
+# and a Naive Bayes classifier
+# warning: naive Bayes is a good classifier, but reported to be a bad predictor
+from sklearn.tree import DecisionTreeClassifier #DT classifier, 
+from sklearn.model_selection import train_test_split #to divide the data
+from sklearn.linear_model import LogisticRegression #logreg model
+#from sklearn.naive_bayes import 
 #%%
