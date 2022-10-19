@@ -6,6 +6,8 @@ Created on Mon Oct 17 13:53:49 2022
 @author: Samsonite
 """
 #%%
+from multiprocessing.resource_sharer import stop
+from sre_constants import SRE_INFO_PREFIX
 import pandas as pd
 import numpy as np 
 import seaborn as sns
@@ -24,7 +26,7 @@ stops = pd.read_csv(path)
 stops.drop(columns = ["GlobalID", "OBJECTID"], inplace = True)
 
 #%%
-# change month of stop to datetime 
+# change month of stop to datetime object
 stops["Month_of_Stop"] = pd.to_datetime(stops.Month_of_Stop)
 
 #%%
@@ -42,14 +44,14 @@ stops_filt.drop(stops_filt[stops_filt.Driver_Race == "Other/Unknown"].index, \
 stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace = True)
 #%%
 # inspect number and location of NaN values
-stops_filt.isna.sum()
+print(stops_filt.isna().sum())
 # Drop stops with NaN
 stops_filt.dropna(inplace = True)
 #%%
 
 # Look at distribution of categorical columns
 for col in stops_filt.columns:
-    if not stops_filt[col].dtype == "int64":
+    if stops_filt[col].dtype == "O":
         print(stops_filt[col].value_counts())
         print("\n")
 # better to look at graphical representation
@@ -79,9 +81,8 @@ for col in stops_filt:
 
 #%%
 # lets see if officer race has any effect on race of the driver they stop
-# alterantive: stops_filt["Driver_Race"].hist(by = stops_filt["Officer_Race"])
 
-
+#group by officer race
 leo_race = stops_filt.groupby(by = "Officer_Race")
 
 for group in leo_race:
@@ -117,7 +118,22 @@ for grp in outcome:
     plt.ylabel("Count")
     plt.xlabel("Result of Stop")
     plt.show()
-# interesting results, 
+# interesting results, it might be more informative to see the normalized number of arrests
+# per driver race
+#%%
+arrests_byrace = stops_filt.query("Result_of_Stop == 'Arrest'")["Driver_Race"].value_counts()\
+    /stops_filt.Driver_Race.value_counts() * 100
+
+fig, ax = plt.subplots()
+ax.bar(x = arrests_byrace.index, height=arrests_byrace)
+ax.set_ylabel("Percent of Total")
+ax.set_xlabel("Driver Race")
+ax.set_title("Percent of stops that result\nin arrest by race")
+plt.show()
+
+#This gives a better picture, while accross all races the percent of arrests is
+#small (<4%) it is much higher for black drivers, who are more than twice as 
+#likely to be arrested as any other race
 #%%
 # time to build some simple predictive models
 # we will keep it basic here, just a DecisionTree, a Logistic Regression model,
@@ -126,5 +142,6 @@ for grp in outcome:
 from sklearn.tree import DecisionTreeClassifier #DT classifier, 
 from sklearn.model_selection import train_test_split #to divide the data
 from sklearn.linear_model import LogisticRegression #logreg model
+from sklearn.preprocessing import LabelEncoder #label encoding for naive bayes
 #from sklearn.naive_bayes import 
 #%%
