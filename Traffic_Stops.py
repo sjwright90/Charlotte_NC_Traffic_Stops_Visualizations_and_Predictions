@@ -79,11 +79,31 @@ for col in stops_filt:
 leo_race = stops_filt.groupby(by = "Officer_Race")
 
 for group in leo_race:
-    plt.hist(group[1].Driver_Race)
-    plt.title(group[0])
+    plt.hist(group[1].Driver_Race.sort_values())
+    plt.title("Officer Race: " + group[0])
     plt.ylabel("Count")
     plt.xlabel("Driver Race")
     plt.show()
-\
+# as we can see black drivers are stopped most often across all officer races, excepting 
+# Asian/Pacific Islander where white drivers are the most stopped
+#%%
+# now let's see how CMPD division effects the race of the driver being stopped
+
+cmpd_loc = stops_filt.groupby(by = "CMPD_Division")
+
+for grp in cmpd_loc:
+    plt.hist(grp[1].Driver_Race.sort_values())
+    plt.title("CMPD Division: " + grp[0])
+    plt.ylabel("Count")
+    plt.xlabel("Diver Race")
+    plt.show()
+
+#CMPD divisions Providence and South are the only two divisions where the driver being stoped
+#is not most likely to be black, this likely is a reflection of the population in those two
+#locations in Charlotte
+#%%
+# let's see what some maps of this data might tell us
+import json
+import requests
 
 #%%
