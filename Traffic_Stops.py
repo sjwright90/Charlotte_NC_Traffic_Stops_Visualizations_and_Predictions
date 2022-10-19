@@ -240,5 +240,14 @@ regression model does not allow us to exame the relative importance of the coeff
 let's rebuild the regressor in statsmodels and see if we can determine whether we can pair the
 model down a bit'''
 #%%
-
+import statsmodels.formula.api as sm
+#%%
+logit_model = stops.drop(columns = ["Month_of_Stop"])
+toadd = ""
+toadd = toadd.join([" + " + col for col in logit_model.columns if col != "Result_of_Stop"])
+toadd = toadd[3:]
+#%%
+logit_model["Driver_Race"] = logit_model.Driver_Race.astype("category")
+logit_model["Result_of_Stop"] = logit_model.Result_of_Stop.astype("category")
+lg_sm = sm.logit(formula = "Result_of_Stop ~ Driver_Race", data = logit_model).fit()
 #%%
