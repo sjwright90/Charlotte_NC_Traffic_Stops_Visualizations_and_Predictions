@@ -151,7 +151,31 @@ from sklearn.naive_bayes import MultinomialNB
 nb_stops = stops_filt.copy()
 todrop = [col for col in nb_stops if nb_stops[col].dtype != "O"]
 nb_stops.drop(columns = todrop, inplace = True)
-# then we want to split off the target column which is result of stop
+# and break off predictors and target
+nb_vars = nb_stops.drop(columns = "Result_of_Stop")
+nb_trg = nb_stops["Result_of_Stop"].array
+nb_trg = nb_trg.reshape(-1,1)
+#%%
+# then we want to divide into training and testing sets
+
+nb_X_train, nb_X_test, nb_y_train, nb_y_test = train_test_split(nb_vars, nb_trg, test_size=0.2, \
+    random_state = 32, 
+    stratify=nb_trg)
+
+#then use one hot encoder to get dummy variables
+#one encoder for the predictors and one for the target
+ohe_nb_X = OneHotEncoder(handle_unknown="ignore")
+ohne_nb_y = OneHotEncoder(handle_unknown="ignore")
+
+#fit predictor training, then transform on both predictor train and test
+ohe_nb_X.fit(nb_X_train)
+nb_X_train_enc = ohe_nb_X.transform(nb_X_train).toarray()
+nb_X_test_enc = ohe_nb_X.transform(nb_X_test).toarray()
+
+#ditto for target
+ohne_nb_y.fit(nb_y_train)
+nb_y_train_enc = ohne_nb_y.transform(nb_y_train).toarray()
+nb_y_test_enc = ohne_nb_y.transform(nb_y_test).toarray()
 
 
 #%%
