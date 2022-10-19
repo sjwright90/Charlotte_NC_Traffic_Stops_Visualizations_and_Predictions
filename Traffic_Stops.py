@@ -144,6 +144,7 @@ from sklearn.model_selection import train_test_split #to divide the data
 from sklearn.linear_model import LogisticRegression #logreg model
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder #label encoding for naive bayes
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 #%%
 
 #for Naive bayes we really only want categorical variables, so let's drop the numeric
@@ -165,7 +166,7 @@ nb_X_train, nb_X_test, nb_y_train, nb_y_test = train_test_split(nb_vars, nb_trg,
 #then use one hot encoder to get dummy variables
 #one encoder for the predictors and one for the target
 ohe_nb_X = OneHotEncoder(handle_unknown="ignore")
-ohne_nb_y = OneHotEncoder(handle_unknown="ignore")
+ohe_nb_y = OneHotEncoder(handle_unknown="ignore")
 
 #fit predictor training, then transform on both predictor train and test
 ohe_nb_X.fit(nb_X_train)
@@ -173,12 +174,34 @@ nb_X_train_enc = ohe_nb_X.transform(nb_X_train).toarray()
 nb_X_test_enc = ohe_nb_X.transform(nb_X_test).toarray()
 
 #ditto for target
-ohne_nb_y.fit(nb_y_train)
-nb_y_train_enc = ohne_nb_y.transform(nb_y_train).toarray()
-nb_y_test_enc = ohne_nb_y.transform(nb_y_test).toarray()
-
+ohe_nb_y.fit(nb_y_train)
+nb_y_train_enc = ohe_nb_y.transform(nb_y_train).toarray()
+nb_y_test_enc = ohe_nb_y.transform(nb_y_test).toarray()
 
 #%%
+#then we fit the naive bayes classifier, which as it turns out does not
+#need the target variables to be encoded
+nb_y_train_r = np.ravel(nb_y_train)
+nb_mclass = MultinomialNB()
 
+nb_mclass.fit(nb_X_train_enc, nb_y_train_r)
+#%%
+#and look at the result
+nb_y_test_r = np.ravel(nb_y_test)
+print(nb_mclass.score(nb_X_test_enc, nb_y_test_r))
 
+#0.65, pretty bad, let's dig a little deeper
+#%%
+nb_y_pred = nb_mclass.predict(nb_X_test_enc)
+nb_acc = accuracy_score(nb_y_test_r, nb_y_pred)
+ConfusionMatrixDisplay.from_estimator(nb_mclass, nb_X_test_enc, nb_y_test_r)
+plt.xticks(rotation = 90)
+plt.show()
+'''from the confusion matrix we can see that the classifier does pretty well
+for Verbal Warnings and Citations, which unsurprisingly are the two features
+with the highest occurence. There are options from here, one could balance the data
+set to upsample arrest, no action taken, and written warning. Alternatively one 
+could build a Binomial model with arrest vs not arrest, would probaly still want to
+upsample the arrests in this case. One could also reduce the number of predictor
+variables. For the moment we will leave this as is and move on to other classifiers'''
 #%%
