@@ -209,8 +209,15 @@ variables. For the moment we will leave this as is and move on to other classifi
 in this instance we can leave all predictor variables in, but
 we will drop the months column again since we are not doing a time
 series analysis here'''
-lg_X = stops.drop(columns = ["Month_of_Stop", "Result_of_Stop"])
-lg_y = stops["Result_of_Stop"]
+#we can bin the two continuous variables Officer_Years_of_Service and Driver_Age
+stops_filt["Officer_Years_of_Service"] = pd.cut(stops_filt.Officer_Years_of_Service,\
+     bins = [0,5,10,15,100],labels = ["<5years", "5-10years", "10-15years", "15+years"])
+#%%
+stops_filt["Driver_Age"] = pd.cut(stops_filt.Driver_Age, bins = [0,25,35,55,200], \
+    labels = ["under25", "25-34","35-54", "55+"])
+#%%
+lg_X = stops_filt.drop(columns = ["Month_of_Stop", "Result_of_Stop"])
+lg_y = stops_filt["Result_of_Stop"]
 
 lg_X_train, lg_X_test, lg_y_train, lg_y_test = train_test_split(lg_X, lg_y, test_size=0.3, \
     random_state=42, stratify=lg_y)
@@ -228,7 +235,7 @@ lg_stops.fit(lg_enc_X_train, lg_y_train)
 #%%
 score = lg_stops.score(lg_enc_X_test, lg_y_test)
 print(score)
-'''at 0.69 we are slightly better than Naive Bayes, but hardly, for comparison our baseline is 
+'''at 0.68 we are slightly better than Naive Bayes, but hardly, for comparison our baseline is 
 0.53 which is the normalized number of Verbal Warnings, so, better than baseline but not much.'''
 ConfusionMatrixDisplay.from_estimator(lg_stops, lg_enc_X_test, lg_y_test)
 plt.xticks(rotation = 90)
@@ -282,6 +289,9 @@ ConfusionMatrixDisplay.from_estimator(clf_GS, lg_enc_X_test, lg_y_test)
 plt.xticks(rotation = 90)
 plt.show()
 #and no suprises again, Verbal Warning and Citation Issued 
-# are being over predicted
-
+# are being over predicted, however, it is good to see that
+#the test set has similar accuracy to the training set, 
+#this suggests that over fitting is not an issue
+#%%
+#
 #%%
