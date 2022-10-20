@@ -47,3 +47,5 @@ def plotings():
         st.pyplot(figure)
 
 plotings()
+
+# %%
