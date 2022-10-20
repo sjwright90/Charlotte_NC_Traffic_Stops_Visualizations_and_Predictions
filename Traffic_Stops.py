@@ -293,5 +293,11 @@ plt.show()
 #the test set has similar accuracy to the training set, 
 #this suggests that over fitting is not an issue
 #%%
-#
+
+fig, ax = plt.subplots(figsize = (50,50))
+ax.barh(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_)
+ax.tick_params(axis = "y", which = "major", labelsize = 25)
+plt.show()
+#%%
+
 #%%
