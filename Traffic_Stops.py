@@ -324,26 +324,29 @@ def report_beat_scores(results, n_top = 3):
             print("Parameters: {0}".format(results["params"][candidate]))
             print("")
 #%%
-#simple xgboost model
+#random search xgboost model
+#WARNING SLOW TO RUN!!!!!!!!!
 xgb_m1 = xgb.XGBClassifier(objective = "multi:softprob", \
-    random_state = 42, use_label_encoder = False)
+    random_state = 42)
 params = {
     "colsample_bytree":uniform(0.7, 0.3),
     "gamma":uniform(0,0.5),
     "learning_rate":uniform(0.03, 0.3),#default 0.1
-    "max_depth":randint(14,18), #default 3
+    "max_depth":randint(2,6), #default 3
     "n_estimators":randint(100,150), #default 100
     "subsample":uniform(0.6,0.4)
 }
 
 search =RandomizedSearchCV(xgb_m1, param_distributions=params, random_state=42,\
-    n_iter=200, cv = 8, verbose=1, n_jobs=-1, return_train_score=True)
+    n_iter=3, cv = 3, verbose=1, return_train_score=True, n_jobs=1)
 search.fit(lg_enc_X_train, lg_y_train)
 report_beat_scores(search.cv_results_)
 #%%
 #%%
-xgb_m1.fit(lg_enc_X_train, lg_y_train)
-score = xgb_m1.score(lg_enc_X_test, lg_y_test)
+xgb_m2 = xgb.XGBClassifier(objective = "multi:softprob",\
+    random_state = 42, max_depth = 14)
+xgb_m2.fit(lg_enc_X_train, lg_y_train)
+score = xgb_m2.score(lg_enc_X_test, lg_y_test)
 print(score)
 #%%
 #
