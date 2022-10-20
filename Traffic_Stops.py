@@ -308,6 +308,42 @@ plt.show()
 for feat, importance in zip(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_):
     print('feature: {f}, importance: {i}'.format(f=feat, i = importance))
 #%%
-
+import xgboost as xgb
+from sklearn.metrics import auc, mean_squared_error, accuracy_score, confusion_matrix
+from sklearn.model_selection import cross_val_score, KFold, RandomizedSearchCV
+from scipy.stats import uniform, randint
 #%%
+def report_beat_scores(results, n_top = 3):
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results["rank_test_score"] == i)
+        for candidate in candidates:
+            print("Model with rank: {0}".format(i))
+            print("mean validation score: {0:.3f}(std: {1:.3f})".format(\
+                results["mean_test_score"][candidate],
+                results["std_test_score"][candidate]))
+            print("Parameters: {0}".format(results["params"][candidate]))
+            print("")
+#%%
+#simple xgboost model
+xgb_m1 = xgb.XGBClassifier(objective = "multi:softprob", \
+    random_state = 42, use_label_encoder = False)
+params = {
+    "colsample_bytree":uniform(0.7, 0.3),
+    "gamma":uniform(0,0.5),
+    "learning_rate":uniform(0.03, 0.3),#default 0.1
+    "max_depth":randint(14,18), #default 3
+    "n_estimators":randint(100,150), #default 100
+    "subsample":uniform(0.6,0.4)
+}
 
+search =RandomizedSearchCV(xgb_m1, param_distributions=params, random_state=42,\
+    n_iter=200, cv = 8, verbose=1, n_jobs=-1, return_train_score=True)
+search.fit(lg_enc_X_train, lg_y_train)
+report_beat_scores(search.cv_results_)
+#%%
+#%%
+xgb_m1.fit(lg_enc_X_train, lg_y_train)
+score = xgb_m1.score(lg_enc_X_test, lg_y_test)
+print(score)
+#%%
+#
