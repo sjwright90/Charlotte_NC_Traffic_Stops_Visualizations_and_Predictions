@@ -267,15 +267,21 @@ parameters = dict(criterion = criterion, max_depth = max_depth)
 
 
 clf_GS = GridSearchCV(stops_dt_a, parameters, n_jobs=-1, cv = 8)
-clf_GS.fit(lg_enc_X_test,lg_y_test)
+clf_GS.fit(lg_enc_X_train,lg_y_train)
 
 #%%
 print("Best criterion: ", clf_GS.best_estimator_.get_params()["criterion"])
 print("Optimal max_depth: ", clf_GS.best_estimator_.get_params()["max_depth"])
-print("Best scorr: ", clf_GS.best_score_)
-
+print("Best score: ", clf_GS.best_score_)
+# still only 70% so no real chaneg from an out of the box model
 #%%
-cv_scores = clf_GS.cv_results_
-print(cv_scores)
+#lets see perfomance on the training set
+score = clf_GS.score(lg_enc_X_test, lg_y_test)
+print(score)
+ConfusionMatrixDisplay.from_estimator(clf_GS, lg_enc_X_test, lg_y_test)
+plt.xticks(rotation = 90)
+plt.show()
+#and no suprises again, Verbal Warning and Citation Issued 
+# are being over predicted
 
 #%%
