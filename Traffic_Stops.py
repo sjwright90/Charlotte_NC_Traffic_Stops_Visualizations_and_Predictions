@@ -293,11 +293,21 @@ plt.show()
 #the test set has similar accuracy to the training set, 
 #this suggests that over fitting is not an issue
 #%%
-
+'''Quick plot of relative feature importances, interestingly it appears
+as though officer years of service, reason for stop, and CMPD division
+are the most important in prediciting the outcome of a stop. The model is not 
+incredibly accurate, still nearly twice as accurate as a guess, but one
+could argue that race does not actually have much impact on the outcome of 
+a traffic stop'''
 fig, ax = plt.subplots(figsize = (50,50))
 ax.barh(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_)
 ax.tick_params(axis = "y", which = "major", labelsize = 25)
 plt.show()
 #%%
+'''Text representation of teh graph above'''
+for feat, importance in zip(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_):
+    print('feature: {f}, importance: {i}'.format(f=feat, i = importance))
+#%%
 
 #%%
+
