@@ -142,7 +142,7 @@ plt.show()
 from sklearn.tree import DecisionTreeClassifier #DT classifier, 
 from sklearn.model_selection import train_test_split #to divide the data
 from sklearn.linear_model import LogisticRegression #logreg model
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder #label encoding for naive bayes
+from sklearn.preprocessing import OneHotEncoder #label encoding for naive bayes
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 #%%
@@ -236,18 +236,46 @@ plt.show()
 
 '''And looking at the confusion matrix we see a similar issue, with Citation Issued and Verbal Warning
 being overpredicted, likely due to their greater abundance. Unfortunately the sklearn logistic
-regression model does not allow us to exame the relative importance of the coefficients, so 
-let's rebuild the regressor in statsmodels and see if we can determine whether we can pair the
-model down a bit'''
+regression model does not allow us to exame the relative importance of the coefficients, and it is 
+not very straightforward to do with statsmodels. I ran multinomial regression in R (see r script in
+ this repo) and little more was gleaned.
+ As with earlier, there are more steps to take here, filtering variables, testing different parameters, 
+ and so on, however we will keep moving on to our decision tree'''
 #%%
-import statsmodels.formula.api as sm
+'''Decision tree classifier'''
+#instantiate a decision tree
+stops_dt = DecisionTreeClassifier(max_depth=10)
+
+#fit on the train test set created above, potential for data leakage since the test sets
+#have already been used, but in this instance that is ok
+
+stops_dt = stops_dt.fit(lg_enc_X_train, lg_y_train)
+
 #%%
-logit_model = stops.drop(columns = ["Month_of_Stop"])
-toadd = ""
-toadd = toadd.join([" + " + col for col in logit_model.columns if col != "Result_of_Stop"])
-toadd = toadd[3:]
+score = stops_dt.score(lg_enc_X_test, lg_y_test)
+print(score)
+#out of the box decision tree, with 10 levels, returns a 70% accuracy,
+#better so far than previous models, let's tune it a little bit
 #%%
-logit_model["Driver_Race"] = logit_model.Driver_Race.astype("category")
-logit_model["Result_of_Stop"] = logit_model.Result_of_Stop.astype("category")
-lg_sm = sm.logit(formula = "Result_of_Stop ~ Driver_Race", data = logit_model).fit()
+'''use grid search CV to test hyperparaments'''
+from sklearn.model_selection import GridSearchCV
+#%%
+dec_tree = DecisionTreeClassifier(random_state=42)
+criterion = ["gini","entropy"]
+max_depth = [14,18,22]
+parameters = dict(criterion = criterion, max_depth = max_depth)
+
+
+clf_GS = GridSearchCV(stops_dt_a, parameters, n_jobs=-1, cv = 8)
+clf_GS.fit(lg_enc_X_test,lg_y_test)
+
+#%%
+print("Best criterion: ", clf_GS.best_estimator_.get_params()["criterion"])
+print("Optimal max_depth: ", clf_GS.best_estimator_.get_params()["max_depth"])
+print("Best scorr: ", clf_GS.best_score_)
+
+#%%
+cv_scores = clf_GS.cv_results_
+print(cv_scores)
+
 #%%
