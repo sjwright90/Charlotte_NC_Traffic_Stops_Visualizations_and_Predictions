@@ -10,7 +10,6 @@ from multiprocessing.resource_sharer import stop
 from sre_constants import SRE_INFO_PREFIX
 import pandas as pd
 import numpy as np 
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 #%%
@@ -145,8 +144,8 @@ from sklearn.linear_model import LogisticRegression #logreg model
 from sklearn.preprocessing import OneHotEncoder #label encoding for naive bayes
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
-#%%
 
+#%%
 #for Naive bayes we really only want categorical variables, so let's drop the numeric
 #columns from the dataset
 nb_stops = stops_filt.copy()

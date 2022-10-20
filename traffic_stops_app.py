@@ -32,3 +32,18 @@ def open_clean_file():
 stops_filt = open_clean_file()
 st.write("View of the first few rows!")
 st.table(stops_filt.head())
+
+
+
+leo_race = stops_filt.groupby(by = "Officer_Race")
+
+def plotings():
+    for group in leo_race:
+        plt.hist(group[1].Driver_Race.sort_values())
+        plt.title("Officer Race: " + group[0])
+        plt.ylabel("Count")
+        plt.xlabel("Driver Race")
+        figure = plt.show()
+        st.pyplot(figure)
+
+plotings()
