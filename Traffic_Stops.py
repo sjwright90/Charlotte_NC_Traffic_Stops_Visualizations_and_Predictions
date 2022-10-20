@@ -273,7 +273,7 @@ max_depth = [14,18,22]
 parameters = dict(criterion = criterion, max_depth = max_depth)
 
 
-clf_GS = GridSearchCV(stops_dt_a, parameters, n_jobs=-1, cv = 8)
+clf_GS = GridSearchCV(dec_tree, parameters, n_jobs=-1, cv = 8)
 clf_GS.fit(lg_enc_X_train,lg_y_train)
 
 #%%
@@ -304,7 +304,7 @@ ax.barh(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_)
 ax.tick_params(axis = "y", which = "major", labelsize = 25)
 plt.show()
 #%%
-'''Text representation of teh graph above'''
+'''Text representation of the graph above'''
 for feat, importance in zip(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_):
     print('feature: {f}, importance: {i}'.format(f=feat, i = importance))
 #%%
