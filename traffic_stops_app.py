@@ -34,18 +34,15 @@ st.write("View of the first few rows!")
 st.table(stops_filt.head())
 
 
+choice = st.selectbox(
+    "Which variable would you like to plot against?,
+    "Officer_Race", "CMPD_Division", "Reason_for_Stop"))
 
-leo_race = stops_filt.groupby(by = "Officer_Race")
 
-def plotings():
-    for group in leo_race:
-        plt.hist(group[1].Driver_Race.sort_values())
-        plt.title("Officer Race: " + group[0])
-        plt.ylabel("Count")
-        plt.xlabel("Driver Race")
-        figure = plt.show()
-        st.pyplot(figure)
+grouped = stops_filt.groupby(by = choice)
 
-plotings()
+fig, ax = plt.subplots()
 
-# %%
+ax.hist(grouped["Driver_Race"])
+
+#%%
