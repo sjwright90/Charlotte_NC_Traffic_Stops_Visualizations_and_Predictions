@@ -122,10 +122,14 @@ input_df = pd.DataFrame(to_df, np.arange(1))
 
 input_enc = encoder.transform(input_df).toarray()
 rawoutput = DT_model.predict(input_enc)
+chances = DT_model.predict_proba(input_enc)
 
 if rawoutput == 0:
     output = "Unlikely to be arrested"
 else:
     output = "Likely to be arrested"
 st.write(output)
+st.write("Change of being arrested {0:.2f}  \nChance of not being arrested {1:.2f}".format(
+    chances[0][1], chances[0][0]
+))
 #%%
