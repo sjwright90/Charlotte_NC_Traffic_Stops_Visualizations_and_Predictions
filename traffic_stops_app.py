@@ -65,7 +65,7 @@ with st.expander("Show histogram: "):
 optionsa = [c for c in stops_filt.columns if not c in ['Month_of_Stop',\
     'Driver_Race']]
 choice = st.selectbox(
-    "Which variable would you like to plot against?",
+    "Which variable would you like to plot driver race against?",
     optionsa)
 
 st.write("You chose: ", choice)
