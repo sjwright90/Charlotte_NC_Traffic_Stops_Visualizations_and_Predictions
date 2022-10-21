@@ -364,7 +364,7 @@ clf_GS_s.fit(dt_enc_X_train,dt_y_train)
 print("Best criterion: ", clf_GS_s.best_estimator_.get_params()["criterion"])
 print("Optimal max_depth: ", clf_GS_s.best_estimator_.get_params()["max_depth"])
 print("Best score: ", clf_GS_s.best_score_)
-# still only 70% so no real chaneg from an out of the box model
+# still only 70% so no real change from an out of the box model
 #%%
 #lets see perfomance on the training set
 score = clf_GS_s.score(dt_enc_X_test, dt_y_test)

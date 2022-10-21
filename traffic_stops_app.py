@@ -13,6 +13,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from sklearn.tree import DecisionTreeClassifier #DT classifier, 
+from sklearn.model_selection import train_test_split #to divide the data
+from sklearn.preprocessing import OneHotEncoder #label encoding for naive bayes
+
 #%%
 @st.cache
 def open_clean_file():
@@ -74,4 +78,52 @@ ax.set_title("Histogram of stops by driver race grouped by \"{0}\"".format(choic
 ax.set_ylabel(choice.replace("_", " "))
 st.pyplot(fig)
 
+#%%
+@st.cache
+def build_model():
+    min_stops = stops_filt[["CMPD_Division", "Driver_Race", "Reason_for_Stop"]].copy()
+    min_stops["Target"] = stops_filt["Result_of_Stop"]
+    min_stops["Target"] = np.where(min_stops.Target == "Arrest", 1, 0)
+    count_class_0, _ = min_stops.Target.value_counts()
+    stops_arrest = min_stops[min_stops.Target == 1]
+    stops_arrest_over = stops_arrest.sample(int(np.round(count_class_0 *.5)),\
+    replace = True)
+    min_stops = pd.concat([min_stops, stops_arrest_over], axis = 0)
+    dt_X = min_stops.drop(columns = "Target")
+    dt_y = min_stops["Target"]
+    dt_X_train, dt_X_test, dt_y_train, dt_y_test = train_test_split(dt_X, dt_y, test_size=0.3, \
+    random_state=42, stratify=dt_y)
+    ohedt = OneHotEncoder(handle_unknown="ignore")
+    ohedt.fit(dt_X_train)
+    dt_enc_X_train = ohedt.transform(dt_X_train).toarray()
+    dt_enc_X_test = ohedt.transform(dt_X_test).toarray()
+    model = DecisionTreeClassifier(criterion="gini", max_depth = 20, random_state=42)
+    model.fit(dt_enc_X_train, dt_y_train)
+    conditions = [list(min_stops[col].unique()) for col in min_stops]
+    return model, ohedt, conditions
+DT_model, encoder, inputs = build_model()
+#%%
+divisionop = st.selectbox(
+    "Which division was the driver stopped in?",
+    inputs[0]
+)
+raceop = st.selectbox(
+    "What race is the driver?",
+    inputs[1]
+)
+reasonop = st.selectbox(
+    "Why was the driver stopped?",
+    inputs[2]
+)
+input_df = pd.DataFrame(data = [divisionop, raceop, reasonop], \
+    columns=["CMPD_Division", "Driver_Race", "Reason_for_Stop"])
+
+input_enc = encoder.transform(input_df).toarray()
+rawoutput = DT_model.predict(input_enc)
+
+if rawoutput == 0:
+    output = "Unlikely to be arrested"
+else:
+    output = "Likely to be arrested"
+st.write(output)
 #%%
