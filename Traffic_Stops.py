@@ -348,4 +348,4 @@ xgb_m2.fit(lg_enc_X_train, lg_y_train)
 score = xgb_m2.score(lg_enc_X_test, lg_y_test)
 print(score)
 #%%
-#
+# that's all for now folks
