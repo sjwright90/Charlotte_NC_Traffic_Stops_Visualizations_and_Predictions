@@ -309,6 +309,7 @@ plt.show()
 '''Text representation of the graph above'''
 for feat, importance in zip(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_):
     print('feature: {f}, importance: {i}'.format(f=feat, i = importance))
+
 #%%
 '''Let's filter down the predictors a little bit, this might or might not improve accuracy.
 We will focus on reason for stop, CMPD division, and driver race. These are all things a driver
@@ -317,7 +318,7 @@ classifier, we will just look at the likelyhood of being arrested, we will encod
 all other results as 0. Since "arrest" is such a small percent of the stops we will want to 
 upsample it in the data set. We can justify this choice by arguing that although the chances
 of being arrested are small, the consequences are very high.'''
-#%%
+
 
 min_stops = stops_filt[["CMPD_Division", "Driver_Race", "Reason_for_Stop"]].copy()
 min_stops["Target"] = stops_filt["Result_of_Stop"]
@@ -337,19 +338,42 @@ min_stops = pd.concat([min_stops, stops_arrest_over], axis = 0)
 print(min_stops.Target.value_counts(normalize = True))
 '''ok now arrests are around 1/3 of the data, this should give better results'''
 #%%
-dt_X = min_stops.drop(column = "Target")
+#make train_test_split
+dt_X = min_stops.drop(columns = "Target")
 dt_y = min_stops["Target"]
 dt_X_train, dt_X_test, dt_y_train, dt_y_test = train_test_split(dt_X, dt_y, test_size=0.3, \
-    random_state=42, stratify=ldt_y)
+    random_state=42, stratify=dt_y)
 #%%
 ohedt = OneHotEncoder(handle_unknown="ignore")
 ohedt.fit(dt_X_train)
-lg_enc_X_train = ohe_lg_X.transform(dt_X_train).toarray()
-lg_enc_X_test = ohe_lg_X.transform(dt_X_test).toarray()
-
+dt_enc_X_train = ohedt.transform(dt_X_train).toarray()
+dt_enc_X_test = ohedt.transform(dt_X_test).toarray()
+#results are already encoded as 0: not arrested, and 1: arrested
 #%%
+# now we build a model
+dt_simple = DecisionTreeClassifier(random_state = 42)
+criterion = ["gini", "entropy"]
+max_depth = [14,16,18,20]
 
+parameters_s = dict(criterion = criterion, max_depth = max_depth)
 
+clf_GS_s = GridSearchCV(dt_simple, parameters_s, n_jobs=-1, cv = 8)
+clf_GS_s.fit(dt_enc_X_train,dt_y_train)
+#%%
+print("Best criterion: ", clf_GS_s.best_estimator_.get_params()["criterion"])
+print("Optimal max_depth: ", clf_GS_s.best_estimator_.get_params()["max_depth"])
+print("Best score: ", clf_GS_s.best_score_)
+# still only 70% so no real chaneg from an out of the box model
+#%%
+#lets see perfomance on the training set
+score = clf_GS_s.score(dt_enc_X_test, dt_y_test)
+print(score)
+ConfusionMatrixDisplay.from_estimator(clf_GS_s, dt_enc_X_test, dt_y_test)
+plt.xticks(rotation = 90)
+plt.show()
+'''our model is returning around 72.5% accuracy, and looking at the confusion matrix
+we see that it is heavily over predicting not arrested. I cannot say that it is an
+amazing model, but it is doing slightly better than baseline, which was ~66%.'''
 
 #%%
 import xgboost as xgb
