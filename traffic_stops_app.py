@@ -39,6 +39,19 @@ st.write("View of the first few rows!")
 with st.expander("Show first 5 rows of the dataframe"):
     st.table(stops_filt.head())
 
+optionsb = [c for c in stops_filt.columns if not c in ['Month_of_Stop']]
+
+targetgrp = st.selectbox(
+    "Variable to build histogram from",
+    optionsb)
+
+st.write("You chose: ", targetgrp)
+
+figa, axa = plt.subplots()
+sns.histplot(data = stops_filt, x = targetgrp, ax = axa)
+axa.set_title("Histogram of traffic stops by \"{0}\"\nin Charlotte, NC".format(targetgrp.replace("_"," ")))
+plt.xticks(rotation = 90)
+st.pyplot(figa)
 
 optionsa = [c for c in stops_filt.columns if not c in ['Month_of_Stop',\
     'Driver_Race']]
@@ -56,7 +69,7 @@ fig, ax = plt.subplots()
 sns.barplot(data = grouped, x = choice,\
     y = "Count", hue = "Driver_Race", ax = ax)
 plt.xticks(rotation = 90)
-ax.set_title("Histogram of stops by driver race grouped by " + choice)
+ax.set_title("Histogram of stops by driver race grouped by \"{0}\"".format(choice.replace("_"," ")))
 
 st.pyplot(fig)
 

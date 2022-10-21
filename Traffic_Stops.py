@@ -8,9 +8,11 @@ Created on Mon Oct 17 13:53:49 2022
 #%%
 from multiprocessing.resource_sharer import stop
 from sre_constants import SRE_INFO_PREFIX
+from turtle import title
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 #%%
 # Load data from google drive (should be public, if not email me for link swrig109@uncc.edu)
@@ -28,11 +30,11 @@ stops.drop(columns = ["GlobalID", "OBJECTID"], inplace = True)
 # change month of stop to datetime object
 stops["Month_of_Stop"] = pd.to_datetime(stops.Month_of_Stop)
 
-#%%
+
 # isolate object data types and string strip to remove trailing/leading spaces
 stops_ob = stops.select_dtypes(["object"])
 stops[stops_ob.columns] = stops_ob.apply(lambda x: x.str.strip())
-#%%
+
 
 # Remove stops with multiple officers or officer race not specified
 stops_filt = stops[~ stops.Officer_Race.isin(["2 or More", "Not Specified"])].copy()
@@ -41,7 +43,7 @@ stops_filt.drop(stops_filt[stops_filt.Driver_Race == "Other/Unknown"].index, \
     inplace = True)
 # remove stops where reason for stop is other
 stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace = True)
-#%%
+
 # inspect number and location of NaN values
 print(stops_filt.isna().sum())
 # Drop stops with NaN
@@ -54,6 +56,7 @@ for col in stops_filt.columns:
         print(stops_filt[col].value_counts())
         print("\n")
 # better to look at graphical representation
+
 #%%
 # histograms of each categorical column, as we can see officers are most 
 # often white and drivers are most often black
