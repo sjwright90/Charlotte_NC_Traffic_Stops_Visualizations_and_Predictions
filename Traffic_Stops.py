@@ -48,6 +48,7 @@ stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace
 print(stops_filt.isna().sum())
 # Drop stops with NaN
 stops_filt.dropna(inplace = True)
+
 #%%
 
 # Look at distribution of categorical columns
