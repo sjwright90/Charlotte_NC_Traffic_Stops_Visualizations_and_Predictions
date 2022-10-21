@@ -374,7 +374,10 @@ plt.show()
 '''our model is returning around 72.5% accuracy, and looking at the confusion matrix
 we see that it is heavily over predicting not arrested. I cannot say that it is an
 amazing model, but it is doing slightly better than baseline, which was ~66%.'''
+#%%
 
+
+#%%
 #%%
 import xgboost as xgb
 from sklearn.metrics import auc, mean_squared_error, accuracy_score, confusion_matrix
