@@ -19,8 +19,7 @@ from sklearn.preprocessing import OneHotEncoder #label encoding for naive bayes
 
 #%%
 st.title("Visualization and predictive modeling of traffic stop data for the City of Charlotte")
-st.markdown("Data sourced from City of Charlotte Open Data Portal")
-st.write("Original data can be found [here](https://data.charlottenc.gov/datasets/charlotte::officer-traffic-stops/explore)")
+st.markdown("Data sourced from [City of Charlotte Open Data Portal](https://data.charlottenc.gov/datasets/charlotte::officer-traffic-stops/explore)")
 st.write("The data for this project was pulled 10/17/2022")
 @st.cache
 def open_clean_file():
