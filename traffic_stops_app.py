@@ -48,10 +48,12 @@ targetgrp = st.selectbox(
 st.write("You chose: ", targetgrp)
 
 figa, axa = plt.subplots()
-sns.histplot(data = stops_filt, x = targetgrp, ax = axa)
+sns.histplot(data = stops_filt, y = targetgrp, ax = axa)
 axa.set_title("Histogram of traffic stops by \"{0}\"\nin Charlotte, NC".format(targetgrp.replace("_"," ")))
-plt.xticks(rotation = 90)
-st.pyplot(figa)
+axa.set_ylabel(targetgrp.replace("_"," "))
+
+with st.expander("Show histogram: "):
+    st.pyplot(figa)
 
 optionsa = [c for c in stops_filt.columns if not c in ['Month_of_Stop',\
     'Driver_Race']]
@@ -66,11 +68,10 @@ grouped = pd.DataFrame(grouped)
 grouped.rename(columns={"Driver_Race":"Count"}, inplace = True)
 grouped.reset_index(inplace = True)
 fig, ax = plt.subplots()
-sns.barplot(data = grouped, x = choice,\
-    y = "Count", hue = "Driver_Race", ax = ax)
-plt.xticks(rotation = 90)
+sns.barplot(data = grouped, y = choice,\
+    x = "Count", hue = "Driver_Race", ax = ax)
 ax.set_title("Histogram of stops by driver race grouped by \"{0}\"".format(choice.replace("_"," ")))
-
+ax.set_ylabel(choice.replace("_", " "))
 st.pyplot(fig)
 
 #%%
