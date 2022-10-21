@@ -26,10 +26,8 @@ stops = pd.read_csv(path)
 # Remove unecessary columns
 stops.drop(columns = ["GlobalID", "OBJECTID"], inplace = True)
 
-#%%
 # change month of stop to datetime object
 stops["Month_of_Stop"] = pd.to_datetime(stops.Month_of_Stop)
-
 
 # isolate object data types and string strip to remove trailing/leading spaces
 stops_ob = stops.select_dtypes(["object"])
@@ -38,9 +36,11 @@ stops[stops_ob.columns] = stops_ob.apply(lambda x: x.str.strip())
 
 # Remove stops with multiple officers or officer race not specified
 stops_filt = stops[~ stops.Officer_Race.isin(["2 or More", "Not Specified"])].copy()
+
 #remove stops where driver race is unknown
 stops_filt.drop(stops_filt[stops_filt.Driver_Race == "Other/Unknown"].index, \
     inplace = True)
+
 # remove stops where reason for stop is other
 stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace = True)
 
@@ -309,6 +309,48 @@ plt.show()
 '''Text representation of the graph above'''
 for feat, importance in zip(ohe_lg_X.get_feature_names_out(), stops_dt.feature_importances_):
     print('feature: {f}, importance: {i}'.format(f=feat, i = importance))
+#%%
+'''Let's filter down the predictors a little bit, this might or might not improve accuracy.
+We will focus on reason for stop, CMPD division, and driver race. These are all things a driver
+might know, will likely know, when they are being pulled over. In addition, let us make a binary
+classifier, we will just look at the likelyhood of being arrested, we will encode arrest as 1 and
+all other results as 0. Since "arrest" is such a small percent of the stops we will want to 
+upsample it in the data set. We can justify this choice by arguing that although the chances
+of being arrested are small, the consequences are very high.'''
+#%%
+
+min_stops = stops_filt[["CMPD_Division", "Driver_Race", "Reason_for_Stop"]].copy()
+min_stops["Target"] = stops_filt["Result_of_Stop"]
+min_stops["Target"] = np.where(min_stops.Target == "Arrest", 1, 0)
+#%%
+'''let's see how many arrests (now coded as 1) compared to other results there are'''
+print(min_stops.Target.value_counts(normalize = True))
+'''So only 2.5% of the stops are arrests, any model will likely just predict 0 and achieve 97.5% 
+accuracy, but we will upsample to force the model to consider arrests'''
+#%%
+'''let's upsample arrests by about half the number of non-arrests'''
+count_class_0, _ = min_stops.Target.value_counts()
+stops_arrest = min_stops[min_stops.Target == 1]
+stops_arrest_over = stops_arrest.sample(int(np.round(count_class_0 *.5)),\
+    replace = True)
+min_stops = pd.concat([min_stops, stops_arrest_over], axis = 0)
+print(min_stops.Target.value_counts(normalize = True))
+'''ok now arrests are around 1/3 of the data, this should give better results'''
+#%%
+dt_X = min_stops.drop(column = "Target")
+dt_y = min_stops["Target"]
+dt_X_train, dt_X_test, dt_y_train, dt_y_test = train_test_split(dt_X, dt_y, test_size=0.3, \
+    random_state=42, stratify=ldt_y)
+#%%
+ohedt = OneHotEncoder(handle_unknown="ignore")
+ohedt.fit(dt_X_train)
+lg_enc_X_train = ohe_lg_X.transform(dt_X_train).toarray()
+lg_enc_X_test = ohe_lg_X.transform(dt_X_test).toarray()
+
+#%%
+
+
+
 #%%
 import xgboost as xgb
 from sklearn.metrics import auc, mean_squared_error, accuracy_score, confusion_matrix
