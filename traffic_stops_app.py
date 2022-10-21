@@ -115,8 +115,10 @@ reasonop = st.selectbox(
     "Why was the driver stopped?",
     inputs[2]
 )
-input_df = pd.DataFrame(data = [divisionop, raceop, reasonop], \
-    columns=["CMPD_Division", "Driver_Race", "Reason_for_Stop"])
+allops = [divisionop, raceop, reasonop]
+columns = ["CMPD_Division", "Driver_Race", "Reason_for_Stop"]
+to_df = dict(zip(columns, allops))
+input_df = pd.DataFrame(to_df, np.arange(1))
 
 input_enc = encoder.transform(input_df).toarray()
 rawoutput = DT_model.predict(input_enc)
