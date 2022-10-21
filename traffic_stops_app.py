@@ -12,6 +12,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 #%%
 @st.cache
 def open_clean_file():
@@ -27,22 +28,36 @@ def open_clean_file():
         inplace = True)
     stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop == "Other"].index, inplace = True)
     stops_filt.dropna(inplace = True)
+    stops_filt["Driver_Age"] = pd.cut(stops_filt.Driver_Age,bins = [0,25,35,55,200],\
+        labels = ["Under 25", "25 to 34", "35 to 54", "55 and older"])
+    stops_filt["Officer_Years_of_Service"] = pd.cut(stops_filt.Officer_Years_of_Service,\
+        bins = [0,5,10,15,100], labels = ["Less than 5", "5 to 9", "10 to 15", "Over 15"])
     return stops_filt
 
 stops_filt = open_clean_file()
 st.write("View of the first few rows!")
-st.table(stops_filt.head())
+with st.expander("Show first 5 rows of the dataframe"):
+    st.table(stops_filt.head())
 
 
+optionsa = [c for c in stops_filt.columns if not c in ['Month_of_Stop',\
+    'Driver_Race']]
 choice = st.selectbox(
-    "Which variable would you like to plot against?,
-    "Officer_Race", "CMPD_Division", "Reason_for_Stop"))
+    "Which variable would you like to plot against?",
+    optionsa)
 
+st.write("You chose: ", choice)
 
-grouped = stops_filt.groupby(by = choice)
-
+grouped = stops_filt.groupby(by = choice)["Driver_Race"].value_counts()
+grouped = pd.DataFrame(grouped)
+grouped.rename(columns={"Driver_Race":"Count"}, inplace = True)
+grouped.reset_index(inplace = True)
 fig, ax = plt.subplots()
+sns.barplot(data = grouped, x = choice,\
+    y = "Count", hue = "Driver_Race", ax = ax)
+plt.xticks(rotation = 90)
+ax.set_title("Histogram of stops by driver race grouped by " + choice)
 
-ax.hist(grouped["Driver_Race"])
+st.pyplot(fig)
 
 #%%
