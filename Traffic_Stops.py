@@ -419,18 +419,19 @@ score = xgb_m2.score(lg_enc_X_test, lg_y_test)
 print(score)
 #%%
 '''XGBoost with simple model'''
-xgb_s = xgb.XGBClassifier(objective="multi:softprob", random_state = 42)
+xgb_s = xgb.XGBClassifier(objective="binary:logistic", random_state = 42)
 params_s = {
     "colsample_bytree":uniform(0.7, 0.3),
     "gamma":uniform(0,0.5),
     "learning_rate":uniform(0.03, 0.3),#default 0.1
-    "max_depth":randint(2,6), #default 3
+    "max_depth":randint(3,7), #default 3
     "n_estimators":randint(100,150), #default 100
     "subsample":uniform(0.6,0.4)
 }
-search_s = RandomizedSearchCV(xgb_s, param_distributions=param_s, random_state=42,\
-    n_iter = 10, cv = 3, verbose=1, return_train_score=True, n_jobs=1)
-search_s.fit(dt_enc_X_train, dt_y_test)
+search_s = RandomizedSearchCV(xgb_s, param_distributions=params_s, random_state=42,\
+    n_iter = 100, cv = 3, verbose=1, return_train_score=True, n_jobs=1)
+search_s.fit(dt_enc_X_train, dt_y_train)
+#%%
 report_beat_scores(search_s.cv_results_)
 
 #%%
