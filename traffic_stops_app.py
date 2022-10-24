@@ -106,6 +106,8 @@ def build_model():
     return model, ohedt, conditions
 DT_model, encoder, inputs = build_model()
 #%%
+st.markdown("Predictive Modeling:")
+st.write("Choose the parameters of interest you would like to model")
 divisionop = st.selectbox(
     "Which division was the driver stopped in?",
     inputs[0]
@@ -128,9 +130,9 @@ rawoutput = DT_model.predict(input_enc)
 chances = DT_model.predict_proba(input_enc)
 
 if rawoutput == 0:
-    output = "Unlikely to be arrested"
+    output = "**Unlikely to be arrested**"
 else:
-    output = "Likely to be arrested"
+    output = "**Likely to be arrested**"
 st.write(output)
 st.write("Change of being arrested {0:.2f}  \nChance of not being arrested {1:.2f}".format(
     chances[0][1], chances[0][0]
