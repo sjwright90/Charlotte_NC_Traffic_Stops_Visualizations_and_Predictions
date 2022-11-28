@@ -62,24 +62,22 @@ axa.set_ylabel(targetgrp.replace("_"," "))
 with st.expander("Show histogram: "):
     st.pyplot(figa)
 
-optionsa = [c for c in stops_filt.columns if not c in ['Month_of_Stop',\
-    'Driver_Race']]
-choice = st.selectbox(
-    "Which variable would you like to plot driver race against?",
-    optionsa)
+optionsc = [c for c in stops_filt.columns if not c in ["Month_of_Stop"]]
 
-st.write("You chose: ", choice)
+choiceca = st.selectbox(
+    "Which variable would you like to plot?",
+    optionsc
+)
+choicecb = st.selectbox(
+    "Which varible would you like to groupby?",
+    optionsc
+)
 
-grouped = stops_filt.groupby(by = choice)["Driver_Race"].value_counts()
-grouped = pd.DataFrame(grouped)
-grouped.rename(columns={"Driver_Race":"Count"}, inplace = True)
-grouped.reset_index(inplace = True)
-fig, ax = plt.subplots()
-sns.barplot(data = grouped, y = choice,\
-    x = "Count", hue = "Driver_Race", ax = ax)
-ax.set_title("Histogram of stops by driver race grouped by \"{0}\"".format(choice.replace("_"," ")))
-ax.set_ylabel(choice.replace("_", " "))
-st.pyplot(fig)
+figc,axc = plt.subplots()
+sns.countplot(data=stops_filt, y=choiceca, hue=choicecb, ax=axc)
+axc.set_title("Histogram of {} grouped by {}".format(choiceca.replace("_"," "),choicecb.replace("_"," ")))
+axc.set_ylabel(choiceca.replace("_", " "))
+st.pyplot(figc)
 
 #%%
 @st.cache
@@ -94,19 +92,16 @@ def build_model():
     min_stops = pd.concat([min_stops, stops_arrest_over], axis = 0)
     dt_X = min_stops.drop(columns = "Target")
     dt_y = min_stops["Target"]
-    dt_X_train, dt_X_test, dt_y_train, dt_y_test = train_test_split(dt_X, dt_y, test_size=0.3, \
-    random_state=42, stratify=dt_y)
     ohedt = OneHotEncoder(handle_unknown="ignore")
-    ohedt.fit(dt_X_train)
-    dt_enc_X_train = ohedt.transform(dt_X_train).toarray()
-    dt_enc_X_test = ohedt.transform(dt_X_test).toarray()
-    model = DecisionTreeClassifier(criterion="gini", max_depth = 20, random_state=42)
-    model.fit(dt_enc_X_train, dt_y_train)
+    ohedt.fit(dt_X)
+    dt_enc_X = ohedt.transform(dt_X).toarray()
+    model = DecisionTreeClassifier(criterion="gini", max_depth = 14, random_state=42)
+    model.fit(dt_enc_X, dt_y)
     conditions = [list(min_stops[col].unique()) for col in min_stops]
     return model, ohedt, conditions
 DT_model, encoder, inputs = build_model()
 #%%
-st.markdown("Predictive Modeling:")
+st.markdown("**Predictive Modeling:**")
 st.write("Choose the parameters of interest you would like to model")
 divisionop = st.selectbox(
     "Which division was the driver stopped in?",

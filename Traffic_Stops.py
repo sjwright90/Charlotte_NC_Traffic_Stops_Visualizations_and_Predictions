@@ -54,8 +54,15 @@ for col in stops_filt.columns:
         print(stops_filt[col].value_counts())
         print("\n")
 # better to look at graphical representation
+# %%
+figt,axt = plt.subplots()
+sns.countplot(data=stops_filt, y="Officer_Gender", hue="Officer_Gender", ax = axt)
+axt.set_title("Crimes")
+axt.set_ylabel("Officer Race")
+axt.set_xlabel("Counts")
+plt.show(figt)
 
-#%%
+# %%
 # histograms of each categorical column, as we can see officers are most 
 # often white and drivers are most often black
 for col in stops_filt:
@@ -144,7 +151,7 @@ from sklearn.model_selection import train_test_split #to divide the data
 from sklearn.linear_model import LogisticRegression #logreg model
 from sklearn.preprocessing import OneHotEncoder #label encoding for naive bayes
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
 
 #%%
 #for Naive bayes we really only want categorical variables, so let's drop the numeric
@@ -210,11 +217,10 @@ in this instance we can leave all predictor variables in, but
 we will drop the months column again since we are not doing a time
 series analysis here'''
 #we can bin the two continuous variables Officer_Years_of_Service and Driver_Age
+stops_filt["Driver_Age"] = pd.cut(stops_filt.Driver_Age,bins = [0,25,35,55,200],\
+        labels = ["Under 25", "25 to 34", "35 to 54", "55 and older"])
 stops_filt["Officer_Years_of_Service"] = pd.cut(stops_filt.Officer_Years_of_Service,\
-     bins = [0,5,10,15,100],labels = ["<5years", "5-10years", "10-15years", "15+years"])
-#%%
-stops_filt["Driver_Age"] = pd.cut(stops_filt.Driver_Age, bins = [0,25,35,55,200], \
-    labels = ["under25", "25-34","35-54", "55+"])
+    bins = [0,5,10,15,100], labels = ["Less than 5", "5 to 9", "10 to 15", "Over 15"])
 #%%
 lg_X = stops_filt.drop(columns = ["Month_of_Stop", "Result_of_Stop"])
 lg_y = stops_filt["Result_of_Stop"]
@@ -280,7 +286,7 @@ clf_GS.fit(lg_enc_X_train,lg_y_train)
 print("Best criterion: ", clf_GS.best_estimator_.get_params()["criterion"])
 print("Optimal max_depth: ", clf_GS.best_estimator_.get_params()["max_depth"])
 print("Best score: ", clf_GS.best_score_)
-# still only 70% so no real chaneg from an out of the box model
+# still only 70% so no real change from an out of the box model
 #%%
 #lets see perfomance on the training set
 score = clf_GS.score(lg_enc_X_test, lg_y_test)
@@ -351,7 +357,7 @@ dt_enc_X_test = ohedt.transform(dt_X_test).toarray()
 # now we build a model
 dt_simple = DecisionTreeClassifier(random_state = 42)
 criterion = ["gini", "entropy"]
-max_depth = [14,16,18,20]
+max_depth = [10,12,14,16,18,20]
 
 parameters_s = dict(criterion = criterion, max_depth = max_depth)
 
@@ -372,8 +378,6 @@ plt.show()
 '''our model is returning around 72.5% accuracy, and looking at the confusion matrix
 we see that it is heavily over predicting not arrested. I cannot say that it is an
 amazing model, but it is doing slightly better than baseline, which was ~66%.'''
-#%%
-
 
 #%%
 #%%
@@ -408,7 +412,7 @@ params = {
 
 search =RandomizedSearchCV(xgb_m1, param_distributions=params, random_state=42,\
     n_iter=3, cv = 3, verbose=1, return_train_score=True, n_jobs=1)
-search.fit(lg_enc_X_train, lg_y_train)
+search.fit(dt_enc_X_train, lg_y_train)
 report_beat_scores(search.cv_results_)
 #%%
 #%%
