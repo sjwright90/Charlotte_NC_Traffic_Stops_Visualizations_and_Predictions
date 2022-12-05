@@ -17,7 +17,6 @@ def open_clean_file():
            url.split('/')[-2]
     stops = pd.read_csv(path)
     stops.drop(columns=["GlobalID", "OBJECTID"], inplace=True)
-    stops["Month_of_Stop"] = pd.to_datetime(stops.Month_of_Stop)
     stops_ob = stops.select_dtypes(["object"])
     stops[stops_ob.columns] = stops_ob.apply(lambda x: x.str.strip())
     stops_filt = stops[~ stops.Officer_Race.isin(["2 or More",

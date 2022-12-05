@@ -25,6 +25,24 @@ with st.spinner("Getting your data ready"):
 st.subheader("Understanding policing data in the Charlotte, NC metropolitan area")
 intro_md = read_markdown_file("intro.md")
 st.markdown(intro_md)
-st.write("View of the first few rows!")
-with st.expander("Show first 5 rows of the dataframe"):
+st.subheader("Getting familiar with the data:")
+st.write("Here we are going to get familiar with the data set ",
+         "we are working with. The data is a record of traffic ",
+         "conducted in Charlotte, NC between January 2021 and ",
+         "December 2021. Each row of the data frame is an individual ",
+         "traffic stop and the columns provide information about that ",
+         "stop. Take a look at the first few rows of the data frame ",
+         "below to familiarize yourlself with the data")
+
+with st.expander("Click to show first 5 rows of the dataframe"):
     st.table(stops_filt.head())
+
+st.write("Great! As you can see there are a good many pieces of ",
+         "recorded for each stop. Below are a few tools that ",
+         "allow you to keep exploring the data set. Feel free ",
+         "to poke around and see if anything sparks your interest. ",
+         "When you are ready to move onto the next steps go to ",
+         "one of the links on the left of the screen for graphing ",
+         "tools and predictive modeling.")
+
+
