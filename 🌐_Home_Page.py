@@ -37,8 +37,9 @@ st.write("Here we are going to get familiar with the data set ",
 with st.expander("Click to show first 5 rows of the dataframe"):
     st.table(stops_filt.head())
 
-st.write("Great! As you can see there are a good many pieces of ",
-         "recorded for each stop. Below are a few tools that ",
+st.write("Great! As you can see there are a large number of data points ",
+         "recorded for each stop! This is exciting since we will have ",
+         "lots of data to work with!\n\nBelow are a few tools that ",
          "allow you to keep exploring the data set. Feel free ",
          "to poke around and see if anything sparks your interest. ",
          "When you are ready to move onto the next steps go to ",
