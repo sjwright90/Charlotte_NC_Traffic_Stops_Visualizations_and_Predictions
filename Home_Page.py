@@ -14,7 +14,6 @@ import seaborn as sns
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import OneHotEncoder
 
-
 # %%
 st.title("Visualization and predictive modeling of traffic stop data for the City of Charlotte")
 st.markdown("Data sourced from [City of Charlotte Open Data Portal](https://data.charlottenc.gov/datasets/charlotte::officer-traffic-stops/explore)")
@@ -76,15 +75,13 @@ axa.set_ylabel(targetgrp.replace("_", " "))
 with st.expander("Show histogram: "):
     st.pyplot(figa)
 
-optionsc = [c for c in stops_filt.columns if c not in ["Month_of_Stop"]]
-
 choiceca = st.selectbox(
     "Which variable would you like to plot?",
-    optionsc
+    optionsb
 )
 choicecb = st.selectbox(
     "Which varible would you like to groupby?",
-    optionsc
+    optionsb
 )
 
 figc, axc = plt.subplots()

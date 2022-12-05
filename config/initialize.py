@@ -9,6 +9,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 # %%
+@st.cache
 def open_clean_file():
     url = "https://drive.google.com/file/d/1P9wUxzlFcXs_sC0jBGBlcdyP56OMvK7W/view?usp=sharing"
     path = 'https://drive.google.com/uc?export=download&id=' +\
@@ -42,6 +43,7 @@ def open_clean_file():
 
 
 # %%
+@st.cache
 def build_model():
     min_stops = stops_filt[["CMPD_Division",
                             "Driver_Race",
