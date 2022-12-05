@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import OneHotEncoder
+from pathlib import Path
 
 
 # %%
@@ -65,3 +66,8 @@ def build_model(df):
     model.fit(dt_enc_X, dt_y)
     conditions = [list(min_stops[col].unique()) for col in min_stops]
     return model, ohedt, conditions
+
+
+# %%
+def read_markdown_file(md_file):
+    return Path(md_file).read_text()
