@@ -44,11 +44,11 @@ def open_clean_file():
 
 # %%
 @st.cache
-def build_model():
-    min_stops = stops_filt[["CMPD_Division",
+def build_model(df):
+    min_stops = df[["CMPD_Division",
                             "Driver_Race",
                             "Reason_for_Stop"]].copy()
-    min_stops["Target"] = stops_filt["Result_of_Stop"]
+    min_stops["Target"] = df["Result_of_Stop"]
     min_stops["Target"] = np.where(min_stops.Target == "Arrest", 1, 0)
     count_class_0, _ = min_stops.Target.value_counts()
     stops_arrest = min_stops[min_stops.Target == 1]
