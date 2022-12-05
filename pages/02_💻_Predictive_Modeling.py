@@ -16,8 +16,10 @@ from config.initialize import build_model, open_clean_file
 
 
 # %%
-stops_filt = open_clean_file()
-DT_model, encoder, inputs = build_model(stops_filt)
+with st.spinner("Setting up predictive model"):
+    stops_filt = open_clean_file()
+    DT_model, encoder, inputs = build_model(stops_filt)
+
 st.markdown("**Predictive Modeling:**")
 st.write("Choose the parameters of interest you would like to model")
 divisionop = st.selectbox(

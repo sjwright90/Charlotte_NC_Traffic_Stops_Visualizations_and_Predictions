@@ -8,7 +8,9 @@ import seaborn as sns
 from config.initialize import open_clean_file
 
 # %%
-stops_filt = open_clean_file()
+with st.spinner("Getting your data ready"):
+    stops_filt = open_clean_file()
+
 
 optionsb = [c for c in stops_filt.columns if c not in ['Month_of_Stop']]
 
