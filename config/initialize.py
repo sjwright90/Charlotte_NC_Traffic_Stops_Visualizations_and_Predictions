@@ -26,6 +26,7 @@ def open_clean_file():
     stops_filt.drop(stops_filt[stops_filt.Reason_for_Stop ==
                                "Other"].index, inplace=True)
     stops_filt.dropna(inplace=True)
+    stops_num = stops_filt.copy()
     stops_filt["Driver_Age"] = pd.cut(stops_filt.Driver_Age,
                                       bins=[0, 25, 35, 55, 200],
                                       labels=["Under 25",
@@ -39,7 +40,7 @@ def open_clean_file():
                        "5 to 9",
                        "10 to 15",
                        "Over 15"])
-    return stops_filt
+    return stops_filt, stops_num
 
 
 # %%

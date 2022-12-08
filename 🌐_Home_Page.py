@@ -21,7 +21,7 @@ st.markdown("Data sourced from [City of Charlotte Open Data Portal](https://data
 st.write("The data for this project was pulled 10/17/2022")
 
 with st.spinner("Getting your data ready"):
-    stops_filt = open_clean_file()
+    stops_filt, stops_num = open_clean_file()
 st.subheader("Understanding policing data in the Charlotte, NC metropolitan area")
 intro_md = read_markdown_file("intro.md")
 st.markdown(intro_md)
@@ -46,4 +46,27 @@ st.write("Great! As you can see there are a large number of data points ",
          "one of the links on the left of the screen for graphing ",
          "tools and predictive modeling.")
 
+st.subheader("Raw data")
+with st.expander("Click here to look at some more raw data: "):
+    st.write("Move the slider to select a random set of observations ",
+    "from the data table.")
+    size = st.select_slider("How many rows would you like to show?",
+                            options=np.arange(1,11))
+    guess = np.random.randint(stops_filt.shape[0]-1, size=size)
+    st.table(stops_filt.iloc[guess, :])
 
+st.subheader("Summary statistics")
+with st.expander("Open to see summary statistics of the data: "):
+    st.write("Summary statistics is a great place to start when getting ",
+             "familiar with a data set. Below you can look at the ",
+             "summary stats of both numeric and categorical columns in ",
+             "the data")
+    choicea = st.radio("Do you want to see categorical or numerical",
+             options=["Categorical", "Numerical"])
+    if choicea == "Categorical":
+       summarystats = stops_num.describe(include="O").fillna("").astype("str")
+    else:
+        summarystats = stops_num.describe().fillna("").astype("str")
+    
+    st.table(summarystats)
+# %%

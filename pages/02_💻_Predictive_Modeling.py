@@ -16,8 +16,18 @@ from config.initialize import build_model, open_clean_file
 
 
 # %%
+st.title("Predictive modeling")
+st.write("Predictive models allow us to infer what will ",
+         "happen in a future scenario given what has happened ",
+         "in the past. While not infallible, these models can ",
+         "give us insight and aid in decision making processes. "
+         "On this page you can explore a decion tree model which ",
+         "was built from the data you have been using up to this point. ",
+         "The model will predict the likelyhood of an arrest happening ",
+         "given certain parameters of a traffic stop. Explore the model and ",
+         "see whay you make of the results.")
 with st.spinner("Setting up predictive model"):
-    stops_filt = open_clean_file()
+    stops_filt, _ = open_clean_file()
     DT_model, encoder, inputs = build_model(stops_filt)
 
 st.markdown("**Predictive Modeling:**")
@@ -51,3 +61,8 @@ st.write(output)
 st.write("Change of being arrested {0:.2f}  \nChance of not being arrested {1:.2f}".format(
     chances[0][1], chances[0][0]
 ))
+figa, axa = plt.subplots()
+axa.barh(y=["Probability of no arrest","Probability of arrest"],
+         width=[chances[0][0],chances[0][1]])
+axa.set_title("Probablity of being arested during this traffic stop")
+st.pyplot(figa)

@@ -54,6 +54,11 @@ for col in stops_filt.columns:
         print(stops_filt[col].value_counts())
         print("\n")
 # better to look at graphical representation
+
+
+# %%
+plt.pie(stops_filt.groupby(by="Reason_for_Stop").Driver_Race.value_counts())
+plt.pie(stops_filt.Driver_Race.value_counts(), labels=stops_filt.Driver_Race.value_counts().index)
 # %%
 figt,axt = plt.subplots()
 sns.countplot(data=stops_filt, y="Officer_Gender", hue="Officer_Gender", ax = axt)
