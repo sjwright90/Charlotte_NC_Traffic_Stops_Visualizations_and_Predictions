@@ -226,6 +226,12 @@ stops_filt["Driver_Age"] = pd.cut(stops_filt.Driver_Age,bins = [0,25,35,55,200],
         labels = ["Under 25", "25 to 34", "35 to 54", "55 and older"])
 stops_filt["Officer_Years_of_Service"] = pd.cut(stops_filt.Officer_Years_of_Service,\
     bins = [0,5,10,15,100], labels = ["Less than 5", "5 to 9", "10 to 15", "Over 15"])
+# %%
+officer_years = stops_filt.groupby("Officer_Years_of_Service")\
+                .Result_of_Stop.value_counts(normalize=True)
+race_officer_years = stops_filt.groupby(["Officer_Years_of_Service", "Driver_Race"]).Result_of_Stop.value_counts(normalize=True)
+
+
 #%%
 lg_X = stops_filt.drop(columns = ["Month_of_Stop", "Result_of_Stop"])
 lg_y = stops_filt["Result_of_Stop"]
