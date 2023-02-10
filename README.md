@@ -1,4 +1,4 @@
-# DSBA5122_Design_Contest
+# Examining trends and predicting results for traffic stops in Charlotte, NC
  Visualizations and simple predictive models of Charlotte, NC police stop data
 
 Credit for data attributed to: City of Charlotte, North Carolina:
